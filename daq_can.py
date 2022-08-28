@@ -5,11 +5,12 @@ import pandas as pd
 import json
 import sys
 
-CAN_database_file="./Megasquirt_CAN-2014-10-27.dbc"
+CAN_database_file="Megasquirt_CAN-2014-10-27.dbc"
 input_log_file=""
 output_file=""
 
-
+# handle input arguments
+script=sys.argv.pop(0)
 while len(sys.argv) > 0:
     arg=sys.argv.pop(0)
     if arg=="-i":
@@ -29,11 +30,14 @@ while len(sys.argv) > 0:
         CAN_database_file=sys.argv.pop(0)
     elif arg=="-h":
         print("Usage: daq_can.py -i IN_FILE -o OUT_FILE [-d DBC_FILE] [-h]")
-        print(" -i FILE set input log file (required)")
-        print(" -o FILE set output csv file (required)")
-        print(" -d FILE set input dbc file (optional, defaults to '"+CAN_database_file+"' if unspecified)")
-        print(" -h display this help")
+        print("\t-i FILE\tset input log file (required)")
+        print("\t-o FILE\tset output csv file (required)")
+        print("\t-d FILE\tset input dbc file (optional, defaults to '"+CAN_database_file+"' if unspecified)")
+        print("\t-h\tdisplay this help")
         exit(0)
+    else:
+        print("\033[31mDude.\033[m")
+        exit(1)
 
 if len(input_log_file)==0:
     print("\033[31mError: no input file supplied\033[m")
@@ -70,20 +74,23 @@ lines=f.readlines()
 raw_data=[]
 for line in lines:
     raw_datum={}
-    time,module,body=line.split(',',2)
+    time,module,body_str=line.split(',',2)
     raw_datum["time"]=time
     raw_datum["module"]=module
-    raw_datum["body"]=json.loads(body.strip())
+    body=json.loads(body_str.strip())
+    #not adding the body to the data structure shrinks output file by around 25% (roughly)
+    #raw_datum["body"]=body
     if "can0" in module:
         #can specific stuff
-        signals=decode_can(raw_datum["body"])
+        signals=decode_can(body)
         for key,value in signals.items():
             raw_datum[key]=value
     else:
         #non-can stuff
-        for key,value in raw_datum["body"].items():
+        for key,value in body.items():
             raw_datum[key]=value
     raw_data.append(raw_datum)
+f.close()
 
 #read data into pandas
 df = pd.DataFrame(raw_data)
