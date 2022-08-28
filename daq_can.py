@@ -71,6 +71,7 @@ def decode_can(body):
 #Import weird format gollum outputs (time,module,{body})
 f=open(input_log_file)
 lines=f.readlines()
+f.close()
 raw_data=[]
 for line in lines:
     raw_datum={}
@@ -90,10 +91,12 @@ for line in lines:
         for key,value in body.items():
             raw_datum[key]=value
     raw_data.append(raw_datum)
-f.close()
 
 #read data into pandas
+print("Reading data into pandas...")
 df = pd.DataFrame(raw_data)
+#free dictionary
+del raw_data
 print(df)
 
 #write pandas table to csv
