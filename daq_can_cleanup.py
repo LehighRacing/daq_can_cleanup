@@ -29,7 +29,7 @@ while len(sys.argv) > 0:
             exit(1)
         CAN_database_file=sys.argv.pop(0)
     elif arg=="-h":
-        print("Usage: daq_can.py -i IN_FILE -o OUT_FILE [-d DBC_FILE] [-h]")
+        print("Usage: daq_can_cleanup.py -i IN_FILE -o OUT_FILE [-d DBC_FILE] [-h]")
         print("\t-i FILE\tset input log file (required)")
         print("\t-o FILE\tset output csv file (required)")
         print("\t-d FILE\tset input dbc file (optional, defaults to '"+CAN_database_file+"' if unspecified)")
